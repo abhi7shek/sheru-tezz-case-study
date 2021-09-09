@@ -18,3 +18,9 @@ To run the program, open two terminals and run the client and server programs in
 python server.py // To run the server
 python client.py // To run the client
 ```
+
+I have completed all the tasks 1-4.
+
+For task 5, the current code just prints out alerts to the terminal. To create a webpage I could have used HTML with Javascript, where Javascript would be used to accommodate the dynamic parts of the webpage. For generating the alerts for the webpage, I could have had create a flask server and which would figure out that whenever there is a new entry in the database which is according to the given conditions, the new server could send this information to the dynamic part, i.e. Javascript part of the webpage, which would then generate an alert.
+
+For task 6, I could have created a simple webpage with a button redirecting to a Javascript code that would call the API for switching off the machine.
