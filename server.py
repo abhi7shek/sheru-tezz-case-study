@@ -63,7 +63,6 @@ while True:
             int(tdata[20]), data['created'], datetime.datetime.today().replace(microsecond=0)));
         dbconn.commit()
         cur = dbconn.cursor()
-        # print(prevRecTime)
         query0 = "SELECT SOC,RECIEVEDTIME FROM IOT_DATA WHERE RECIEVEDTIME > DATETIME('" + str(prevRecTime[0]) + "') AND SOC < 20;"
         cur.execute(query0)
         rows0 = cur.fetchall()
@@ -78,11 +77,9 @@ while True:
             print('Warning: Pack Voltage is', rows1[0][0],'at', rows1[0][1])  
             prevRecTime[1] = datetime.datetime.strptime(rows1[0][1],'%Y-%m-%d %H:%M:%S')
         
-        query2 = "SELECT CURRENT,RECIEVEDTIME FROM IOT_DATA WHERE RECIEVEDTIME > DATETIME('" + str(prevRecTime[1]) + "') AND CURRENT < 0;";
-
+        query2 = "SELECT CURRENT,RECIEVEDTIME FROM IOT_DATA WHERE RECIEVEDTIME > DATETIME('" + str(prevRecTime[2]) + "') AND CURRENT < 0;";
         cur.execute(query2)
         rows2 = cur.fetchall()
-        
         if len(rows2)>0:  
             print('Warning: Battery is discharging at', rows2[0][1])  
             prevRecTime[2] = datetime.datetime.strptime(rows2[0][1],'%Y-%m-%d %H:%M:%S')
