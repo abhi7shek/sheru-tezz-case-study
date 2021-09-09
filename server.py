@@ -6,7 +6,7 @@ import datetime
 from common import *
 
 prevRecTime = [datetime.datetime.today().replace(microsecond=0)]*3
-errno = 0
+err_number = 0
 
 # Use this for physical database
 dbconn = sqlite3.connect('iotdata.db')
@@ -43,15 +43,16 @@ serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind((IP, PORT))
 serv.listen(5)
 
+log_file = open(SERVER_LOG_FILE, 'a')
+
 while True:
     try:
-        errno = 0
+        err_number = 0
         conn, addr = serv.accept()
         data1 = conn.recv(3000)
         conn.close()
         data = json.loads(data1.decode('utf-8'))
         tdata = data['tdata'].split(',')
-        print(tdata)
         dbconn.execute("INSERT INTO IOT_DATA (DEVICEIMEI, LATITUDE ,LONGITUDE, CELL1, CELL2, CELL3,\
             CELL4, CELL5, CELL6, CELL7, CELL8, CELL9, CELL10, CELL11, CELL12, CELL13, CELL14, AVGCELL,\
             PACK, CURRENT, SOC, CREATEDTIME, RECIEVEDTIME)\
@@ -64,7 +65,6 @@ while True:
         cur = dbconn.cursor()
         # print(prevRecTime)
         query0 = "SELECT SOC,RECIEVEDTIME FROM IOT_DATA WHERE RECIEVEDTIME > DATETIME('" + str(prevRecTime[0]) + "') AND SOC < 20;"
-        print(query0)
         cur.execute(query0)
         rows0 = cur.fetchall()
         if len(rows0)>0:
@@ -88,11 +88,16 @@ while True:
             prevRecTime[2] = datetime.datetime.strptime(rows2[0][1],'%Y-%m-%d %H:%M:%S')
 
     except Exception as e:
-        print('Some data might be missed')
-        print(e)
-        errno += 1
-        if errno == THRESHOLD_ERROR_LIMIT: 
-            print('Repeated Errors')
+        error_time = str(datetime.datetime.today().replace(microsecond=0))
+        log_file.write(error_time + ' An exceptional thing happed - ' + str(e) + '\n')
+        log_file.write(error_time + ' Some data might be missed in your DB\n')
+        log_file.flush()
+        err_number += 1
+        if err_number == THRESHOLD_ERROR_LIMIT: 
+            # consequtive errors crossed the threshold limit of errors
+            log_file.write(error_time + ' Repeated errors, closing the client\n')
+            log_file.flush()
             break
 
+log_file.close()
 dbconn.close()
